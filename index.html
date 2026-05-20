@@ -24,6 +24,7 @@
     <a href="paper.pdf">Paper</a>
     <a href="https://github.com/freeze-lasr/aware_bench/">Code</a>
     <a href="https://huggingface.co/antieval/datasets">Dataset</a>
+    <a href="#quickstart">Quickstart</a>
     <a href="#citation">Citation</a>
     <a href="#resources">Resources</a>
   </nav>
@@ -144,6 +145,48 @@
         across frontier judges) on a substantial subset of benchmarks in our suite.
       </figcaption>
     </figure>
+  </section>
+
+  <section id="quickstart">
+    <h2>Quickstart</h2>
+    <p>
+      EvalAwareBench is an open pipeline you can run against any Inspect-compatible
+      evaluation. The full code, datasets, and Web UI live in the
+      <a href="https://github.com/freeze-lasr/aware_bench/">aware_bench</a> repo.
+    </p>
+
+    <h3>Install</h3>
+    <pre><code>git clone https://github.com/freeze-lasr/aware_bench
+cd aware_bench
+uv sync --extra ui</code></pre>
+    <p>
+      Add your API keys to <code>.env</code>
+      (<code>OPENROUTER_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, or
+      <code>OPENAI_API_KEY</code>) for whichever judge model you plan to run.
+    </p>
+
+    <h3>Run the end-to-end demo</h3>
+    <p>
+      The repo ships with a canonical demo config that exercises all four
+      pipeline stages (collect &rarr; probe&nbsp;selection &rarr; measure
+      &rarr; analyze) on ~100 transcripts &mdash; budget ~$5&ndash;10 on
+      <code>gpt-5.2</code> via OpenRouter.
+    </p>
+    <pre><code># From the command line
+python run.py --config configs/examples/config_demo_e2e.yaml
+
+# Or launch the Web UI and click "Run" on the demo_e2e config
+python ui/server.py
+# then open http://localhost:8000</code></pre>
+
+    <h3>Use it on your own benchmark</h3>
+    <p>
+      Point a config at your Inspect log or local JSON transcripts, swap in
+      your judge model, and the pipeline reports AUROC, AUPRC, and per-probe
+      <em>P</em>(eval) breakdowns. Full schema and worked examples:
+      <a href="https://github.com/freeze-lasr/aware_bench/blob/master/README.md">README</a>,
+      <a href="https://github.com/freeze-lasr/aware_bench/blob/master/ui/README.md">UI guide</a>.
+    </p>
   </section>
 
   <section id="citation">

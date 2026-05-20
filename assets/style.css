@@ -78,9 +78,37 @@ section h2 {
   font-weight: 700;
   margin: 0 0 22px;
 }
+section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 26px 0 10px;
+}
 section p { margin: 0 0 16px; }
 section ol, section ul { padding-left: 22px; }
 section li { margin-bottom: 10px; }
+section pre {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 14px 18px;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+section pre code {
+  font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color: var(--text);
+  background: transparent;
+}
+section p code, section li code {
+  font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.88em;
+}
 
 a { color: var(--link); text-decoration: underline; }
 a:hover { color: var(--link-hover); }
