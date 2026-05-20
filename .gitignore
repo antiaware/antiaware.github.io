@@ -1,0 +1,17 @@
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+vendor/
+.bundle/
+
+# LaTeX build artifacts in paper-src/
+paper-src/*.aux
+paper-src/*.bbl
+paper-src/*.blg
+paper-src/*.log
+paper-src/*.out
+paper-src/*.toc
+paper-src/*.synctex.gz
+paper-src/*.fls
+paper-src/*.fdb_latexmk

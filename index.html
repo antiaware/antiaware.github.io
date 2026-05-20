@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalAwareBench: A Benchmark for Measuring Evaluation Awareness in Frontier Language Models</title>
+<meta name="description" content="EvalAwareBench: an open pipeline and benchmark for measuring evaluation awareness in frontier LLMs.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<main class="container">
+
+  <header class="paper-header">
+    <h1>EvalAwareBench: A Benchmark for Measuring Evaluation Awareness in Frontier Language Models</h1>
+    <p class="authors">
+      by Xinning Li<sup>*</sup>, Kemunto Ochwang'i<sup>*</sup>, Aryasomayajula Ram Bharadwaj<sup>*</sup>,
+      Nitisha Jain, Alexandra Souly<sup>&dagger;</sup>, Robert Kirk<sup>&dagger;</sup>
+    </p>
+    <p class="affil"><sup>*</sup>Equal contribution. <sup>&dagger;</sup>Corresponding authors.</p>
+  </header>
+
+  <nav class="link-list">
+    <a href="paper.pdf">Paper</a>
+    <a href="https://github.com/freeze-lasr/aware_bench/">Code</a>
+    <a href="https://huggingface.co/antieval/datasets">Dataset</a>
+    <a href="#citation">Citation</a>
+    <a href="#resources">Resources</a>
+  </nav>
+
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <p>
+      Frontier large language models can often recognize when they are being evaluated, a capability known as
+      <em>evaluation awareness</em>. If models behave differently in evaluations than in deployment, this
+      undermines the validity of evaluation results, which are a crucial component of current AI safety frameworks.
+      We introduce <strong>EvalAwareBench</strong>, an open pipeline and benchmark for measuring evaluation
+      awareness that works with any Inspect-compatible evaluation, allowing practitioners to test against current
+      and future benchmarks. EvalAwareBench ships with a newly curated transcript suite covering current frontier
+      system-card evaluations and diverse deployment sources.
+    </p>
+    <p>
+      The benchmark serves two purposes: measuring how reliably frontier LLMs recognize that they are being
+      evaluated, and assessing how detectable individual benchmarks are as evaluations. We identify two
+      methodological choices in the existing literature that introduce systematic bias: the identity of the model
+      that generated the deployment transcripts accounts for <strong>11.25% of measurement variance</strong> and
+      can reorder model rankings; and elicitation prompts selected for high performance on one model can perform
+      near chance on others. EvalAwareBench corrects for both via per-model probe calibration and a stratified
+      generator-harmonisation procedure.
+    </p>
+  </section>
+
+  <section id="overview">
+    <figure>
+      <img src="figures/hero_figure.png" alt="EvalAwareBench overview pipeline figure">
+      <figcaption>
+        <strong>Overview of EvalAwareBench methodology.</strong>
+        <strong>(a)</strong> Eval and deploy transcripts pass through the pipeline, are probed with calibration-selected
+        questions, scored by a judge LLM, and ranked by AUROC.
+        <strong>(b)</strong> AUROC under three deployment-data conditions: <em>self-only</em> (same-family deploy data,
+        unconfounded reference), <em>mixed</em> (cross-family deploy data), and <em>corrected</em> (mixed with
+        generator-identity bias absorbed).
+        <strong>(c)</strong> Per-model probe question selection: held-out AUROC by ensemble size <em>k</em>.
+        Calibration-selected probes outperform the fixed Needham et al. set across all models, with diminishing
+        returns beyond <em>k</em>&nbsp;&approx;&nbsp;5.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="contributions">
+    <h2>Contributions</h2>
+    <ol>
+      <li>
+        <strong>An open, extensible pipeline</strong> for measuring evaluation awareness on any Inspect-compatible
+        benchmark, with a refreshed transcript suite covering current frontier system-card evaluations and diverse
+        deployment pools.
+      </li>
+      <li>
+        <strong>Per-model probe calibration.</strong> Elicitation prompts do not transfer across model families;
+        a fixed set under-elicits awareness by up to <strong>0.08 AUROC</strong>. Per-model selection outperforms
+        fixed and random baselines.
+      </li>
+      <li>
+        <strong>A generator-identity confound and correction.</strong> <strong>11.25%</strong> of
+        <em>P</em>(eval) variance is attributable to the deployment transcript's generator; this persists under
+        resampling, and we propose a stratified harmonisation that recovers the unconfounded signal.
+      </li>
+      <li>
+        <strong>An empirical study</strong> across 12 judge models and 13 benchmarks: judges discriminate at
+        AUROC&nbsp;&gt;&nbsp;0.75 and <em>P</em>(eval) is high across benchmark categories.
+      </li>
+    </ol>
+  </section>
+
+  <section id="findings">
+    <h2>Key Findings</h2>
+
+    <figure>
+      <img src="figures/fig1_heatmap.png" alt="Heatmap of P(eval) across judge x generator pairs">
+      <figcaption>
+        <strong>Claude-style models are seen as more deploy-like by all judges.</strong>
+        Deploy <em>P</em>(eval): Judge &times; Generator. The columnar pattern shows the generator effect: Claude
+        transcripts (left columns) receive low <em>P</em>(eval) from all judges, while GPT and Gemini transcripts
+        receive comparatively high scores regardless of who judges them.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/fig7_pq_auroc_vs_k.png" alt="Probe-question AUROC vs k, per model">
+      <figcaption>
+        <strong>Ensemble AUROC vs. number of probe questions, per model.</strong> Per-model exhaustive calibration
+        selection (green) and its held-out performance (red), versus a random-selection baseline (blue, mean
+        &plusmn;&nbsp;1&nbsp;std over 500 Monte Carlo draws per <em>k</em>) and Needham et&nbsp;al.'s fixed PQ set
+        (orange dotted line, <em>k</em>&nbsp;=&nbsp;5). Per-model selection meets or beats the baseline from
+        <em>k</em>&nbsp;&approx;&nbsp;3&ndash;4 onward.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/fig_correction_validation_excl_self_model.png" alt="Stratified harmonisation correction validation">
+      <figcaption>
+        <strong>Stratified harmonisation correction.</strong> Per judge AUROC under three conditions: <em>Mixed</em>
+        (raw scores from cross-family deploy pool), <em>Mixed Corrected</em> (same pool with harmonisation at
+        &lambda;&nbsp;=&nbsp;0.1), and <em>Self-only</em> (same-family deploys, the unconfounded reference). The
+        corrected AUROC is consistently closer to Self-only than the uncorrected version.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/fig8_mixed_auroc_all_models.png" alt="Mixed AUROC across 12 judges">
+      <figcaption>
+        <strong>Per-model mixed AUROC across 12 judges.</strong> Closed-source models grouped by family, ordered by
+        release date. Within each closed-source family the newest model attains the highest AUROC
+        (Anthropic 0.76 &rarr; 0.88 &rarr; 0.89; OpenAI 0.78 &rarr; 0.80 &rarr; 0.83; Google 0.76 &rarr; 0.87).
+        The four open-source judges cluster in [0.78,&nbsp;0.81].
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/fig8b_benchmarks.png" alt="Mean P(eval) per benchmark">
+      <figcaption>
+        <strong>Mean <em>P</em>(eval) per evaluation dataset</strong>, averaged across six judges and grouped by
+        category. Error bars are bootstrap 95% confidence intervals. <em>P</em>(eval) is high (&gt;&nbsp;0.83 pooled
+        across frontier judges) on a substantial subset of benchmarks in our suite.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="citation">
+    <h2>Citation</h2>
+    <pre><code>@misc{li2026evalawarebench,
+    title={EvalAwareBench: A Benchmark for Measuring Evaluation Awareness in Frontier Language Models},
+    author={Xinning Li and Kemunto Ochwang'i and Aryasomayajula Ram Bharadwaj and Nitisha Jain and Alexandra Souly and Robert Kirk},
+    year={2026},
+    howpublished={\url{https://github.com/freeze-lasr/aware_bench/}}
+}</code></pre>
+  </section>
+
+  <section id="resources">
+    <h2>Resources</h2>
+    <ul>
+      <li><a href="https://github.com/freeze-lasr/aware_bench/">EvalAwareBench code</a> (GitHub)</li>
+      <li><a href="https://huggingface.co/antieval/datasets">EvalAwareBench transcript dataset</a> (Hugging Face)</li>
+      <li><a href="paper.pdf">EvalAwareBench paper PDF</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>
+      Website inspired by the <a href="https://shikun.io/projects/clarity">Clarity Template</a> by
+      <a href="https://shikun.io">Shikun Liu</a>.
+    </p>
+  </footer>
+
+</main>
+
+</body>
+</html>

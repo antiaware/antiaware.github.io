@@ -1,0 +1,9 @@
+title: EvalAwareBench
+description: A Benchmark for Measuring Evaluation Awareness in Frontier Language Models
+url: "https://antiaware.github.io"
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
