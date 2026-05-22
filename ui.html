@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalAwareBench Web UI — Documentation</title>
+<meta name="description" content="A local web app that wraps the EvalAwareBench pipeline: config builder with live OpenRouter validation, auto-detected hidden judge overrides, in-place run monitoring, and human-readable error diagnoses.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* === ui-doc layout: dev-docs style with sticky sidebar nav ============ */
+
+  body.ui-doc { background: var(--bg); }
+
+  /* Grid: sidebar | content */
+  .uid-grid {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 760px);
+    gap: 56px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+    align-items: start;
+  }
+
+  /* Sidebar */
+  .uid-side {
+    position: sticky;
+    top: 32px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    padding: 0 4px 0 0;
+    font-size: 14px;
+  }
+  /* Small breadcrumb at the top of the sidebar — back to home, no sticky top bar */
+  .uid-side-back {
+    padding: 4px 10px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .uid-side-back a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .uid-side-back a:hover { color: var(--link); }
+  .uid-side-group { margin-bottom: 22px; }
+  .uid-side-heading {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 10px;
+  }
+  .uid-side a {
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    line-height: 1.4;
+    border-left: 2px solid transparent;
+  }
+  .uid-side a:hover {
+    background: var(--code-bg);
+    color: var(--link);
+  }
+  .uid-side a.active {
+    color: var(--link);
+    background: #eef3fb;
+    border-left-color: var(--link);
+    font-weight: 500;
+  }
+
+  /* Main content area */
+  .uid-main { min-width: 0; }
+  .uid-main h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .uid-main .lede {
+    font-size: 16.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 32px;
+  }
+  .uid-main section { margin: 0 0 44px; scroll-margin-top: 24px; }
+  .uid-main section h2 {
+    text-align: left;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 24px 0 14px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    letter-spacing: -0.005em;
+  }
+  .uid-main section:first-of-type h2 { border-top: none; padding-top: 0; margin-top: 0; }
+  .uid-main section h3 {
+    text-align: left;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+    color: var(--text);
+  }
+  .uid-main section p { line-height: 1.65; margin: 0 0 14px; }
+  .uid-main section ul, .uid-main section ol { padding-left: 22px; margin: 0 0 14px; }
+  .uid-main section li { margin-bottom: 6px; line-height: 1.6; }
+
+  /* Inline code: subtle background, no border */
+  .uid-main code:not(pre code) {
+    font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.88em;
+    border: none;
+  }
+  .uid-main code.kbd {
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  /* Code blocks */
+  .uid-main pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .uid-main pre code {
+    font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* Figures */
+  .uid-main figure.ui-shot {
+    margin: 18px 0 22px;
+    text-align: left;
+  }
+  .uid-main figure.ui-shot img {
+    max-width: 100%;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    background: #fff;
+  }
+  .uid-main figure.ui-shot figcaption {
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: left;
+    line-height: 1.5;
+  }
+
+  /* Tables */
+  .uid-main table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 18px;
+    font-size: 14px;
+  }
+  .uid-main table th,
+  .uid-main table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+  .uid-main table th {
+    background: var(--panel);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+  }
+  .uid-main table tr:last-child td { border-bottom: none; }
+
+  /* Callouts */
+  .uid-main .callout {
+    border-left: 3px solid var(--link);
+    background: #eef3fb;
+    padding: 10px 14px;
+    margin: 16px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 14.5px;
+  }
+  .uid-main .callout strong { color: var(--text); }
+
+  /* Footer */
+  .uid-main footer.doc-foot {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    font-size: 13.5px;
+    color: var(--muted);
+    font-style: normal;
+    text-align: left;
+  }
+  .uid-main footer.doc-foot a { color: var(--link); text-decoration: none; }
+  .uid-main footer.doc-foot a:hover { text-decoration: underline; }
+
+  /* Anchors for h2/h3 hover */
+  .uid-main section h2 a.anchor,
+  .uid-main section h3 a.anchor {
+    color: var(--rule);
+    text-decoration: none;
+    margin-left: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-weight: 400;
+  }
+  .uid-main section h2:hover a.anchor,
+  .uid-main section h3:hover a.anchor { opacity: 1; }
+  .uid-main section h2 a.anchor:hover,
+  .uid-main section h3 a.anchor:hover { color: var(--link); }
+
+  /* Mobile: sidebar collapses to a top dropdown */
+  @media (max-width: 880px) {
+    .uid-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px 18px 60px;
+    }
+    .uid-side {
+      position: static;
+      max-height: none;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 8px;
+    }
+    .uid-side-group { margin-bottom: 8px; }
+    .uid-main h1 { font-size: 26px; }
+    .uid-main section h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body class="ui-doc">
+
+<div class="uid-grid">
+
+  <aside class="uid-side">
+    <div class="uid-side-back">
+      <a href="index.html">← EvalAwareBench</a>
+    </div>
+    <div class="uid-side-group">
+      <div class="uid-side-heading">Getting started</div>
+      <a href="#intro">What it is</a>
+      <a href="#install">Install &amp; launch</a>
+      <a href="#layout">Layout</a>
+    </div>
+
+    <div class="uid-side-group">
+      <div class="uid-side-heading">Workflows</div>
+      <a href="#building">Building a config</a>
+      <a href="#running">Running</a>
+      <a href="#inline">Inline run view</a>
+      <a href="#editing">Editing YAML</a>
+      <a href="#probes">Probe questions</a>
+      <a href="#comparing">Comparing runs</a>
+    </div>
+
+    <div class="uid-side-group">
+      <div class="uid-side-heading">Reference</div>
+      <a href="#failures">Failure diagnoses</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#demo">End-to-end demo</a>
+    </div>
+
+    <div class="uid-side-group">
+      <div class="uid-side-heading">Source</div>
+      <a href="https://github.com/freeze-lasr/aware_bench/blob/master/ui/README.md">ui/README.md</a>
+      <a href="https://github.com/freeze-lasr/aware_bench/blob/master/docs/ui.md">docs/ui.md</a>
+    </div>
+  </aside>
+
+  <article class="uid-main">
+
+    <h1>Web UI</h1>
+    <p class="lede">
+      A local web app that wraps the EvalAwareBench pipeline. Build configs,
+      launch and monitor runs, browse results, and compare experiments — without
+      leaving the browser. It doesn't reimplement the pipeline; it shells out
+      to <code>python run.py</code> and watches the output directory.
+    </p>
+
+    <section id="intro">
+      <h2>What it is <a class="anchor" href="#intro">#</a></h2>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_intro.png" alt="EvalAwareBench UI — Runs sidebar on the left with many configs listed, main panel showing the New Config builder with sections for Name, Data Sources, Target Models, Probe Questions, and Settings">
+        <figcaption>The whole app on one page: sidebar listing configs (Runs) and probe sets (Probes), main panel showing whatever you've selected — here, the new-config builder.</figcaption>
+      </figure>
+
+      <p>
+        Running EvalAwareBench from the CLI is fine for one experiment. The UI
+        exists for the cases the CLI doesn't handle gracefully: iterating on
+        configs, watching long runs and reacting to failures, comparing two
+        completed runs, and debugging when a run silently produces nothing
+        (typically a hidden judge model inside an inspect task, a missing key,
+        or a provider policy block).
+      </p>
+    </section>
+
+    <section id="install">
+      <h2>Install &amp; launch <a class="anchor" href="#install">#</a></h2>
+<pre><code>uv sync --extra ui                    # adds fastapi + uvicorn
+python ui/server.py                   # serves on 127.0.0.1:8000
+python ui/server.py --port 9000       # different port
+python ui/server.py --host 0.0.0.0    # expose on LAN
+python ui/server.py --reload          # dev mode, auto-restart on edits</code></pre>
+
+      <p>
+        You also need API keys for whichever providers your runs touch. Drop
+        them in a <code>.env</code> at the repo root (auto-loaded by
+        <code>run.py</code>):
+      </p>
+<pre><code>OPENROUTER_API_KEY=sk-or-...
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...</code></pre>
+
+      <div class="callout">
+        <strong>Tip.</strong> If you're routing everything through OpenRouter,
+        <strong>unset <code>OPENAI_API_KEY</code></strong> in the shell that
+        launched the UI server — otherwise inspect's openai-compatible provider
+        may pick it up for tasks that hardcode <code>openai/*</code> model IDs
+        internally.
+      </div>
+    </section>
+
+    <section id="layout">
+      <h2>Layout <a class="anchor" href="#layout">#</a></h2>
+      <p>
+        The sidebar has two tabs — <strong>Runs</strong> (configs) and
+        <strong>Probes</strong> — plus a top-bar <strong>Compare</strong> action.
+        Everything is one page; clicking a sidebar item swaps the main panel.
+        Each sidebar entry has a colored status dot:
+      </p>
+      <table>
+        <tr><th>Dot</th><th>State</th></tr>
+        <tr><td>idle</td><td>Config exists, no run yet</td></tr>
+        <tr><td>partial</td><td>Some pipeline stages have outputs</td></tr>
+        <tr><td>running</td><td>Subprocess is live, pulsing</td></tr>
+        <tr><td>completed</td><td>All four stages finished</td></tr>
+        <tr><td>failed</td><td>Process exited without completing</td></tr>
+      </table>
+    </section>
+
+    <section id="building">
+      <h2>Building a config <a class="anchor" href="#building">#</a></h2>
+      <p>
+        Click <code>+</code> next to <strong>Runs</strong> to open the config
+        builder. The form has five sections: Name, Data Sources, Target Models,
+        Probe Questions, Settings.
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_config.png" alt="Config builder — Source 1 with backend=Inspect task and the inspect_evals/aime2025 task selected, the Generator model field marked required (red asterisk) with three cascading selects (Routing=OpenRoute, Provider=anthropic, claude-sonnet-4-6 selected with a warning chip), Target Models filtered to anthropic with claude-sonnet-4.6 checked and several other variants showing warning chips for unvalidated IDs">
+        <figcaption>Generator model is marked required (red asterisk), the three cascading selects narrow the picker, and ⚠ chips flag model IDs that aren't in OpenRouter's live catalog.</figcaption>
+      </figure>
+
+      <h3>Hidden judge / scorer detection <a class="anchor" href="#building">#</a></h3>
+      <p>
+        Many inspect tasks include grader or judge model parameters that default
+        to <code>openai/...</code> and silently bypass whatever generator you
+        configured. The UI parses every task's AST, finds string parameters
+        with model-ID-like defaults, and surfaces them as override fields with
+        the OpenRouter-prefixed equivalent pre-filled. Twelve tasks in the
+        standard inspect_evals install have such hidden defaults — among them
+        <code>agentharm</code>, <code>coconot</code>, <code>healthbench</code>,
+        <code>simpleqa</code>, <code>instrumentaleval</code>, and
+        <code>fortress_benign</code>.
+      </p>
+
+      <h3>Target models <a class="anchor" href="#building">#</a></h3>
+      <p>This is the model that answers your probe questions about each transcript. Three-tier filter:</p>
+      <ul>
+        <li><strong>Routing</strong> — OpenRouter / Direct / All</li>
+        <li><strong>Provider</strong> — OpenAI / Anthropic / Google / …</li>
+        <li><strong>Model list</strong> — multi-select checkboxes within the current filter</li>
+      </ul>
+      <p>
+        Validation is live against OpenRouter's <code>/api/v1/models</code>
+        catalog. Models that appear in past configs but aren't in OpenRouter's
+        current catalog get a ⚠ warning chip — typically typos (e.g. dash-form
+        <code>claude-opus-4-5</code> vs. canonical dot-form
+        <code>claude-opus-4.5</code>) or retired model IDs. The custom-ID input
+        below the list lets you type any model name not in the dropdown;
+        unvalidated openrouter/* IDs trigger a confirm dialog before being added.
+      </p>
+
+      <h3>Per-source generator <a class="anchor" href="#building">#</a></h3>
+      <p>
+        Each <code>inspect</code> source needs a generator (the model that
+        produces trajectories). Same three-tier picker, inline in the source
+        row. The generator is <strong>mandatory</strong> for inspect-backend
+        sources — trying to preview or save without one shows a red border on
+        the offending source and an explanatory alert.
+      </p>
+
+      <h3>Settings, preview, create <a class="anchor" href="#building">#</a></h3>
+      <p>
+        Epochs, temperature, max tasks, cache toggle, batch mode — defaults
+        match the recommended CLI defaults. <strong>Preview YAML</strong> renders
+        the generated YAML inline; <strong>Create Config</strong> saves to
+        <code>configs/</code> and switches you to that config's overview page.
+      </p>
+    </section>
+
+    <section id="running">
+      <h2>Running <a class="anchor" href="#running">#</a></h2>
+      <p>
+        Selecting a config from the sidebar opens its overview: a header with
+        edit / delete / run buttons, plus four cards summarising what'll happen
+        — Models, Probes, Sources, Settings. Below that, the list of past runs.
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_runview.png" alt="Config overview for aime_run: header shows config_aime_run.yaml, MODELS/PROBES/SOURCES/SETTINGS cards summarise the run, Run button at top-right">
+        <figcaption>Cards summarise what will be run; the Run / Re-run button at top right opens the launch options bar inline.</figcaption>
+      </figure>
+
+      <p>The Run button expands an inline options bar with:</p>
+      <ul>
+        <li><strong>Skip collect / Skip PQ sel. / Skip measure / Skip analyze</strong>
+          — re-use existing stage outputs. Each is auto-disabled when no prior
+          outputs exist for that stage (so you can't accidentally skip
+          something that hasn't run yet).</li>
+        <li><strong>Force re-collect</strong> — even with cache enabled,
+          regenerate trajectories from scratch.</li>
+        <li><strong>Allow dirty log dir</strong> — let inspect run on top of a
+          pre-existing log directory without bailing.</li>
+      </ul>
+      <p>
+        A pre-flight check runs on <strong>Start</strong>: the server validates
+        the config and catches model-dependent sources (e.g. inspect) that are
+        missing a generator, refusing to launch with a clear error. The pipeline
+        doesn't quietly drop sources and crash three stages later.
+      </p>
+      <p>
+        After Start, the page does <strong>not</strong> navigate away. The new
+        run appears in the config's run list and
+        <strong>auto-expands inline</strong> with the live pipeline strip and
+        streaming log right where you clicked.
+      </p>
+    </section>
+
+    <section id="inline">
+      <h2>Inline run view <a class="anchor" href="#inline">#</a></h2>
+      <p>
+        Clicking the chevron on any run entry (or starting a new run) expands
+        the run in place. You see the live pipeline strip, the full log panel,
+        and — for completed runs — the per-combo results.
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_logview.png" alt="aime_run live: pipeline strip shows Collect running (yellow) with Measure and Analyze pending, a Stop and Full view button, and the streaming log showing 11 lines of collect-stage output">
+        <figcaption>A live run expanded in place. The collect stage is mid-flight; the log streams in real time. Stage chips recolor as work moves along, and the log tail pins to the bottom unless you scroll up.</figcaption>
+      </figure>
+
+      <h3>Pipeline strip <a class="anchor" href="#inline">#</a></h3>
+      <p>
+        Four boxes (or three when probe_selection isn't configured):
+        <code>collect → probe_selection → measure → analyze</code>. Done is
+        green with a check; running is yellow with a spinning arrow and a
+        pulse; pending is grey.
+      </p>
+
+      <h3>Live log <a class="anchor" href="#inline">#</a></h3>
+      <p>
+        Tails the last 500 lines via SSE, refreshing whenever the file changes.
+        ERROR / Traceback / Exception lines are colored red, WARNING in yellow,
+        timestamps dimmed. A <strong>Load full log</strong> button appears if
+        the log is longer than what's currently shown — clicking it fetches the
+        whole file.
+      </p>
+
+      <h3>Sample progress <a class="anchor" href="#inline">#</a></h3>
+      <p>
+        When the measure or probe_selection stage is active, a progress bar
+        reads the in-flight <code>.eval</code> files for sample-level progress
+        and shows a percentage plus per-task mini-bars.
+      </p>
+    </section>
+
+    <section id="editing">
+      <h2>Editing YAML <a class="anchor" href="#editing">#</a></h2>
+      <p>
+        The header of any config view has a <code>&lt;/&gt;</code> button that
+        opens the in-browser YAML editor. Any run view has a dedicated
+        <strong>Edit Config</strong> button alongside Stop / Resume.
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_config_yaml.png" alt="CodeMirror YAML editor with aime_run's config: pipeline, runs, sources, measurement, inspect, model_params, analysis sections with syntax highlighting and line numbers; Save and Revert buttons above the editor, Cmd+S hint">
+        <figcaption>CodeMirror with YAML syntax highlighting and live pydantic validation. Cmd+S saves; Revert restores the last saved version.</figcaption>
+      </figure>
+
+      <p>
+        Live pydantic validation underlines the offending line on error with
+        the field name. Validation runs the same checks as <code>run.py</code>
+        — if a save fails, the error names the offending field.
+      </p>
+    </section>
+
+    <section id="probes">
+      <h2>Probe questions <a class="anchor" href="#probes">#</a></h2>
+      <p>
+        The <strong>Probes</strong> tab in the sidebar lists every probe-question
+        set under <code>probe_questions/</code>. Each set is a YAML list of
+        closed-ended questions appended to transcripts during the
+        <em>measure</em> stage; each question has a <code>real</code> /
+        <code>eval</code> answer that the judge model picks between (binary),
+        or a scale rating.
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_probe_config.png" alt="Probes tab with the YAML editor open on eval_mcq_confidence_difficulty, showing a confidence-difficulty scale probe with template_text, scale_min/max, answer.real='0', answer.eval='10', template_config etc">
+        <figcaption>Pick a probe set in the sidebar; switch between Questions (rendered view) and Edit YAML (CodeMirror with the same validation as the config editor).</figcaption>
+      </figure>
+
+      <p>Each probe item is one of:</p>
+      <ul>
+        <li><strong>Binary</strong> question with <code>answer: { real: '0', eval: '1' }</code> or similar. The judge picks one.</li>
+        <li><strong>Scale</strong> question with <code>answer_type: scale</code>, <code>scale_min</code>, <code>scale_max</code>. The judge returns a rating.</li>
+      </ul>
+      <p>
+        The optional <code>template_config</code> block controls how the
+        question is appended to the transcript (method: append vs. inline,
+        context-dependent prefixes, etc.). The downstream measure stage just
+        executes whichever <code>pq_file</code> the config points at, filtered
+        to <code>pq_ids</code> if provided.
+      </p>
+    </section>
+
+    <section id="comparing">
+      <h2>Comparing runs <a class="anchor" href="#comparing">#</a></h2>
+      <p>
+        The top-bar <strong>Compare</strong> button opens a side-by-side picker.
+        Pick two completed runs and you get a table of per-combo AUROC / AUPRC /
+        Accuracy with delta columns (green when B is better, red when worse).
+      </p>
+
+      <figure class="ui-shot">
+        <img src="figures/ui_compareview.png" alt="Compare Runs panel: needham_thinking_judge vs needham_no_thinking_judge with the openrouter/anthropic/claude-sonnet-4-6 combo showing AUROC and Accuracy deltas">
+        <figcaption>Compare view. Useful for ablations — thinking-judge vs. no-thinking-judge, calibration-selected vs. fixed probe set, model A vs. model B on the same source.</figcaption>
+      </figure>
+    </section>
+
+    <section id="failures">
+      <h2>Failure diagnoses <a class="anchor" href="#failures">#</a></h2>
+      <p>Failures surface in three places:</p>
+      <ol>
+        <li><strong>Toast (top-right)</strong> — red toast with a diagnosed
+          cause and one-line hint. Click to open the full error modal.</li>
+        <li><strong>Native browser notification</strong> — same diagnosis,
+          fires when the tab is backgrounded so long-running jobs can notify
+          you while you're elsewhere.</li>
+        <li><strong>Error modal</strong> — opens automatically when you visit a
+          failed run's view. Shows the diagnosis as a yellow callout at the top
+          with a clear title + hint, then the full Python traceback in a
+          collapsed <code>&lt;details&gt;</code> block.</li>
+      </ol>
+
+      <h3>Patterns detected <a class="anchor" href="#failures">#</a></h3>
+      <p>
+        The server scans both the run's stdout log <strong>and</strong> any
+        inspect <code>.eval</code> log files (where the <em>real</em> provider
+        response lives, since stdout wraps provider errors in opaque
+        RetryError). Detected patterns:
+      </p>
+      <table>
+        <tr><th>Pattern in log</th><th>Diagnosis</th></tr>
+        <tr><td><code>account_deactivated</code> with <code>openrouter/</code></td><td>OpenAI key being used instead of OpenRouter</td></tr>
+        <tr><td><code>Policy Violation</code> / <code>this user has been blocked</code></td><td>OpenAI policy block (even via OpenRouter)</td></tr>
+        <tr><td><code>AuthenticationError</code> / <code>status: 401</code></td><td>API authentication failed</td></tr>
+        <tr><td><code>RateLimitError</code> / <code>429</code></td><td>Rate limited by provider</td></tr>
+        <tr><td><code>model_not_found</code> / "does not exist"</td><td>Model ID not recognised by provider</td></tr>
+        <tr><td><code>ConnectionError</code> / timeouts</td><td>Network error reaching provider</td></tr>
+        <tr><td>"dataset is empty" + collect status='error'</td><td>Collect failed → measure has nothing to work with</td></tr>
+        <tr><td><code>No manifest.json found</code></td><td>Collect produced no manifest</td></tr>
+      </table>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture <a class="anchor" href="#architecture">#</a></h2>
+<pre><code>ui/
+├── server.py       FastAPI app + subprocess management
+├── frontend.html   Single-page client (Bootstrap 5 + vanilla JS, no build step)
+├── discover.py     Live discovery: models, datasets, inspect tasks
+└── README.md       Quickstart</code></pre>
+
+      <p>Key design decisions:</p>
+      <ul>
+        <li><strong>Subprocess, not in-process.</strong> The server shells out
+          to <code>python run.py --config ...</code> as a subprocess and
+          tracks PID + stage outputs. The UI restarting never affects in-flight
+          runs.</li>
+        <li><strong>State on disk.</strong> Stage status is read from
+          <code>output/{experiment}/runs/{name}/{collect,probe_selection,measure,analyze}/</code>,
+          and per-run state from <code>.run_state.json</code> in the same dir.
+          The UI is effectively a stateless reader plus a process launcher.</li>
+        <li><strong>SSE for live progress.</strong>
+          <code>/api/runs/{name}/progress</code> streams stage status + sample
+          progress + log tail every 2 seconds while a run is live; closes on
+          terminal status.</li>
+        <li><strong>No build step.</strong> <code>frontend.html</code> is one
+          file with inline CSS + JS; Bootstrap and CodeMirror load from CDN.
+          Editing the HTML and refreshing the browser is the dev loop.</li>
+        <li><strong>UI independent of <code>aware_bench/</code>.</strong> All UI
+          logic lives in <code>ui/</code>; the pipeline package is treated as
+          an opaque CLI dependency.</li>
+        <li><strong>Validation is layered.</strong> Frontend blocks obvious
+          mistakes (missing generator on inspect sources); server pre-flight
+          re-validates so raw YAML edits can't slip past; aware_bench itself is
+          the final source of truth.</li>
+      </ul>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting <a class="anchor" href="#troubleshooting">#</a></h2>
+      <table>
+        <tr><th>Symptom</th><th>Likely cause</th></tr>
+        <tr><td><code>ModuleNotFoundError: fastapi</code> on launch</td><td>Forgot <code>uv sync --extra ui</code>.</td></tr>
+        <tr><td>Port 8000 in use</td><td><code>python ui/server.py --port 9001</code> or <code>lsof -ti:8000 | xargs kill</code>.</td></tr>
+        <tr><td>Run flips to "failed" within seconds</td><td>Open the inline log; nine times out of ten it's a missing or deactivated API key. The toast diagnosis names it.</td></tr>
+        <tr><td>Run shows "running" forever</td><td>Subprocess died without writing analyze outputs. Click <strong>Cancel</strong> to clean up state, check the log, then <strong>Resume</strong>.</td></tr>
+        <tr><td>Inline log panel won't update</td><td>Hard-refresh (Cmd+Shift+R). The HTML is sent with no-cache headers but a long-open tab may still hold the previous version.</td></tr>
+      </table>
+    </section>
+
+    <section id="demo">
+      <h2>End-to-end demo <a class="anchor" href="#demo">#</a></h2>
+      <p>
+        The repo ships with a canonical demo config that exercises
+        <strong>all four</strong> pipeline stages within a small budget
+        (~$5–10 on <code>gpt-5.2</code> via OpenRouter):
+      </p>
+<pre><code>python run.py --config configs/examples/config_demo_e2e.yaml</code></pre>
+      <p>
+        Or from the UI: open the <strong>demo_e2e</strong> config in the Runs
+        tab and click <strong>Run</strong> (top-right). Watch the pipeline strip
+        turn green stage by stage; results appear when analyze completes.
+        Validates your install end-to-end.
+      </p>
+    </section>
+
+    <footer class="doc-foot">
+      <a href="index.html">← Back to main page</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/freeze-lasr/aware_bench">Code repository</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/freeze-lasr/aware_bench/blob/master/docs/ui.md">Markdown version</a>
+    </footer>
+
+  </article>
+
+</div>
+
+<script>
+  // Highlight the active sidebar link as the user scrolls.
+  (function(){
+    const links = document.querySelectorAll('.uid-side a[href^="#"]');
+    const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const linkByHash = Object.fromEntries(Array.from(links).map(a => [a.getAttribute('href'), a]));
+    const setActive = (hash) => {
+      links.forEach(a => a.classList.remove('active'));
+      if (hash && linkByHash[hash]) linkByHash[hash].classList.add('active');
+    };
+    const obs = new IntersectionObserver((entries) => {
+      const visible = entries.filter(e => e.isIntersecting).sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) setActive('#' + visible[0].target.id);
+    }, { rootMargin: '-72px 0px -60% 0px', threshold: 0 });
+    sections.forEach(s => obs.observe(s));
+  })();
+</script>
+
+</body>
+</html>
