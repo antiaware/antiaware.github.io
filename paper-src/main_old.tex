@@ -51,7 +51,7 @@
 \newcommand{\peval}{P(\text{eval})}
 \newcommand{\needham}{\citet{needham2025}}
 
-\title{EvalAwareBench: A Benchmark for Measuring Evaluation Awareness\\
+\title{EvalDetectBench: A Benchmark for Measuring Evaluation Awareness\\
        in Frontier Language Models}
 
 \author{%
@@ -74,14 +74,14 @@
 
 % ---------------------------------------------------------------
 \begin{abstract}
-Frontier large language models can often recognize when they are being evaluated, a capability known as evaluation awareness. If models utilised this capability to act differently in evaluations than when deployed, this would undermine the validity of evaluation results, which are a crucial component of current AI safety frameworks. We introduce EvalAwareBench, an open pipeline and benchmark for measuring evaluation awareness capability that works with any Inspect-compatible evaluation, allowing practitioners to test against current and future benchmarks. This benchmark serves two purposes: it measures the extent to which frontier LLMs can recognize that they are being evaluated, and it helps assess the reliability of evaluation benchmarks by measuring the extent to which models can detect them as evaluations. We demonstrate and fix several methodological choices in the existing literature for measuring evaluation awareness that can introduce systematic biases: the source of the data the evaluated model needs to classify as evaluation or deployment can lead to 11.25\% variance in measurement and swap model rankings; and prompts used for eliciting evaluation awareness selected for high performance on one model can perform near chance on other models. We release EvalAwareBench as an open pipeline\footnote{\codeurl} and
+Frontier large language models can often recognize when they are being evaluated, a capability known as evaluation awareness. If models utilised this capability to act differently in evaluations than when deployed, this would undermine the validity of evaluation results, which are a crucial component of current AI safety frameworks. We introduce EvalDetectBench, an open pipeline and benchmark for measuring evaluation awareness capability that works with any Inspect-compatible evaluation, allowing practitioners to test against current and future benchmarks. This benchmark serves two purposes: it measures the extent to which frontier LLMs can recognize that they are being evaluated, and it helps assess the reliability of evaluation benchmarks by measuring the extent to which models can detect them as evaluations. We demonstrate and fix several methodological choices in the existing literature for measuring evaluation awareness that can introduce systematic biases: the source of the data the evaluated model needs to classify as evaluation or deployment can lead to 11.25\% variance in measurement and swap model rankings; and prompts used for eliciting evaluation awareness selected for high performance on one model can perform near chance on other models. We release EvalDetectBench as an open pipeline\footnote{\codeurl} and
 dataset\footnote{\codeurl}.
 \end{abstract}
 
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.99\textwidth]{figures/hero.pdf}
-  \caption{Overview of \textbf{EvalAwareBench} Methodology}
+  \caption{Overview of \textbf{EvalDetectBench} Methodology}
   \label{fig:herofigure}
 \end{figure}
 
@@ -117,7 +117,7 @@ particularly the choice of prompts and the composition of the
 transcript pool, generalises across model families and evaluation
 settings.
 
-We introduce \textbf{EvalAwareBench}, a configurable pipeline with
+We introduce \textbf{EvalDetectBench}, a configurable pipeline with
 updated methodology and tooling to measure evaluation awareness in
 current frontier systems. The pipeline collects evaluation and deployment transcripts, scores each with prompts calibrated for the target model, and reports both per-benchmark detectability and
 aggregate discrimination. This design makes it straightforward to add
@@ -182,7 +182,7 @@ between methods, motivating further methodological study.
 \subsection{Building on Needham et al.}
 \label{sec:background_building}
 
-EvalAwareBench inherits \needham's prompted-classification
+EvalDetectBench inherits \needham's prompted-classification
 framing. A \emph{transcript} (the conversation a model has produced
 during evaluation or deployment) is loaded into a judge model's
 context, followed by a \emph{probe question} (PQ): a classification
@@ -787,7 +787,7 @@ fundamental limitation of all prompted approaches, including ours.
 
 Eval-awareness measurement should be standard practice alongside
 safety evaluations. If a benchmark is easily recognisable as an
-evaluation, the results it produces are suspect: EvalAwareBench
+evaluation, the results it produces are suspect: EvalDetectBench
 provides a tool to check this. Reporting eval-awareness scores
 alongside benchmark results strengthens the evidential chain in safety
 cases, and this benchmark is designed to slot into existing
@@ -802,7 +802,7 @@ selection, and scoring format --- introduce biases that, if
 uncontrolled, can be larger than the differences in eval-awareness
 between models. Generator identity introduces a confound in
 measurement; and probe questions do not transfer across model
-families. EvalAwareBench incorporates these findings into an open
+families. EvalDetectBench incorporates these findings into an open
 pipeline that supports per-model probe calibration for any
 Inspect-compatible evaluation.
 

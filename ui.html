@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvalAwareBench Web UI — Documentation</title>
-<meta name="description" content="A local web app that wraps the EvalAwareBench pipeline: config builder with live OpenRouter validation, auto-detected hidden judge overrides, in-place run monitoring, and human-readable error diagnoses.">
+<title>EvalDetectBench Web UI — Documentation</title>
+<meta name="description" content="A local web app that wraps the EvalDetectBench pipeline: config builder with live OpenRouter validation, auto-detected hidden judge overrides, in-place run monitoring, and human-readable error diagnoses.">
 <link rel="stylesheet" href="assets/style.css">
 <style>
   /* === ui-doc layout: dev-docs style with sticky sidebar nav ============ */
@@ -252,7 +252,7 @@
 
   <aside class="uid-side">
     <div class="uid-side-back">
-      <a href="index.html">← EvalAwareBench</a>
+      <a href="index.html">← EvalDetectBench</a>
     </div>
     <div class="uid-side-group">
       <div class="uid-side-heading">Getting started</div>
@@ -290,7 +290,7 @@
 
     <h1>Web UI</h1>
     <p class="lede">
-      A local web app that wraps the EvalAwareBench pipeline. Build configs,
+      A local web app that wraps the EvalDetectBench pipeline. Build configs,
       launch and monitor runs, browse results, and compare experiments — without
       leaving the browser. It doesn't reimplement the pipeline; it shells out
       to <code>python run.py</code> and watches the output directory.
@@ -300,12 +300,12 @@
       <h2>What it is <a class="anchor" href="#intro">#</a></h2>
 
       <figure class="ui-shot">
-        <img src="figures/ui_intro.png" alt="EvalAwareBench UI — Runs sidebar on the left with many configs listed, main panel showing the New Config builder with sections for Name, Data Sources, Target Models, Probe Questions, and Settings">
+        <img src="figures/ui_intro.png" alt="EvalDetectBench UI — Runs sidebar on the left with many configs listed, main panel showing the New Config builder with sections for Name, Data Sources, Target Models, Probe Questions, and Settings">
         <figcaption>The whole app on one page: sidebar listing configs (Runs) and probe sets (Probes), main panel showing whatever you've selected — here, the new-config builder.</figcaption>
       </figure>
 
       <p>
-        Running EvalAwareBench from the CLI is fine for one experiment. The UI
+        Running EvalDetectBench from the CLI is fine for one experiment. The UI
         exists for the cases the CLI doesn't handle gracefully: iterating on
         configs, watching long runs and reacting to failures, comparing two
         completed runs, and debugging when a run silently produces nothing

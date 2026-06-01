@@ -1,6 +1,6 @@
-# EvalAwareBench Paper
+# EvalDetectBench Paper
 
-LaTeX source for the EvalAwareBench paper. The benchmark code lives in the
+LaTeX source for the EvalDetectBench paper. The benchmark code lives in the
 [aware_bench](https://github.com/freeze-lasr/aware_bench) submodule.
 
 ## Repo structure

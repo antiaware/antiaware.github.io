@@ -29,12 +29,12 @@
 \backcite {souly2026ukaisialignmentevaluation}{{3}{2}{section.2}}
 \backcite {laine2024sad}{{3}{2}{section.2}}
 \backcite {ivanov2025blackbox}{{3}{2}{section.2}}
-\backcite {tracedrun2026}{{4}{3.1}{subsection.3.1}}
-\backcite {yan2026sharechat}{{4}{3.1}{subsection.3.1}}
-\backcite {lin2024wildbench}{{4}{3.1}{subsection.3.1}}
-\backcite {zhong2025codechat}{{4}{3.1}{subsection.3.1}}
+\backcite {tracedrun2026}{{3}{3.1}{subsection.3.1}}
+\backcite {yan2026sharechat}{{3}{3.1}{subsection.3.1}}
+\backcite {lin2024wildbench}{{3}{3.1}{subsection.3.1}}
+\backcite {zhong2025codechat}{{3}{3.1}{subsection.3.1}}
 \backcite {williams2025prodevals}{{5}{3.3}{subsection.3.3}}
-\backcite {williams2025prodevals}{{6}{3.3.2}{subsubsection.3.3.2}}
+\backcite {williams2025prodevals}{{5}{3.3.2}{subsubsection.3.3.2}}
 \backcite {johnson2007combat}{{7}{3.3.3}{subsubsection.3.3.3}}
 \backcite {johnson2007combat}{{19}{E}{appendix.E}}
 \backcite {openai2024swebenchverified}{{20}{6}{table.caption.31}}
