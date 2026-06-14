@@ -52,8 +52,6 @@
   \And
   Aryasomayajula Ram Bharadwaj\footnotemark[1] \\
   \AND
-  Nitisha Jain \\
-  \And
   Alexandra Souly\thanks{Corresponding author.} \\
   \And
   Robert Kirk\footnotemark[2] \\
@@ -69,7 +67,7 @@ Frontier large language models can often recognize when they are being evaluated
 
 \begin{figure}
   \centering
-\includegraphics[width=0.75\textwidth]{figures/hero_figure.pdf}
+\includegraphics[width=\textwidth]{figures/hero_figure.pdf}
   \caption{Overview of \textbf{EvalDetectBench} methodology.
   \textbf{(a)} Eval and deploy transcripts passed through the pipeline, probed with calibration-selected questions, scored by a judge LLM, and ranked by AUROC.
   \textbf{(b)} AUROC under three deployment-data conditions: \textbf{self-only} (same-family deploy data, unconfounded reference), \textbf{mixed} (cross-family deploy data), and \textbf{corrected} (mixed with generator-identity bias absorbed).
